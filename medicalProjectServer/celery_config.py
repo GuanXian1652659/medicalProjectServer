@@ -2,12 +2,12 @@ from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'medicalServer.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'medicalProjectServer.settings')
 
 app = Celery('proj',
-             broker='amqp://',
+             broker='pyamqp://guest@localhost//',
              backend='amqp://',
-             include=['proj.tasks'])
+             include=['medicalServer.tasks'])
 
 app.conf.update(
     result_expires=3600,

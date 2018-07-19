@@ -8,13 +8,13 @@ import tasks
 
 def index(request):
     #api in json format
-    ans=tasks.add(1,100)
+    ans=tasks.add.delay(1,100)
     data={
         'hello':12,
         'world':13,
         'summer':14,
         'databasecoursedesign':'fuck',
-        'ans':ans
+        #'ans':ans
     }
     return JsonResponse(data)
 
