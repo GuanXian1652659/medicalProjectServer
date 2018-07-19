@@ -7,3 +7,7 @@
 Python 2.7.x
 
 Django 1.11.x，使用 `pip2 install "django<2"` 进行安装。
+
+celery 4.2
+
+rabbit 3.7
