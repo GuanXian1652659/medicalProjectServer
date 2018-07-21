@@ -2,7 +2,7 @@
 # encoding=utf-8
 
 from SocketServer import TCPServer, ThreadingMixIn, StreamRequestHandler
-import time
+
 
 
 class Server(ThreadingMixIn, TCPServer):  # 自定义Server类
