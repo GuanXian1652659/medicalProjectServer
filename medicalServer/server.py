@@ -4,7 +4,6 @@ import struct
 import hashlib,base64
 import threading
 import time
-
 # channels没用过，
 
 '''""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -30,7 +29,8 @@ import time
 +---------------------------------------------------------------+
 '''""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-connectionlist = {} 
+connectionlist = {} #dic {ip,task}
+taskIP={}
 g_code_length = 0
 g_header_length = 0 
 PRINT_FLAG = True
@@ -124,7 +124,7 @@ class WebSocket(threading.Thread):
         threading.Thread.__init__(self)
         self.conn = conn
         self.index = index
-        self.name = name
+        self.name = name #ip
         self.remote = remote
         self.path = path
         self.GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
@@ -172,19 +172,27 @@ class WebSocket(threading.Thread):
                             "Upgrade: websocket\r\n\r\n"
                     self.conn.send(handshake.encode(encoding='utf-8'))
                     self.handshaken = True 
-                    sendMessage("Welocomg " + self.name + " !")
+                    sendMessage("success")
                     g_code_length = 0
                 else:
                     print("Socket {} Error2!".format(self.index))
                     deleteconnection(str(self.index))
                     self.conn.close()
                     break
-            else:            
-
-                '''""""""""""""""""""""""""""""""""""""""""""""""""""""""
+            else: 
                 mm = self.conn.recv(128)
+                recv_message = parse_data(mm)
+                if recv_message == "quit":
+                    print("Socket %s Logout!" % (self.index))
+                    deleteconnection(str(self.index))
+                    self.conn.close()
+                    break
+                else:
+                    sendMessage("get")
+                    print(recv_message)
+
                 #计算接受的长度，判断是否接收完，如未接受完需要继续接收
-                if g_code_length == 0:
+                '''if g_code_length == 0:
                     get_datalength(mm) # 调用此函数可以计算并修改全局变量g_code_length和g_header_length的值
                 self.length_buffer += len(mm)
                 self.buffer_utf8 += mm
@@ -201,18 +209,20 @@ class WebSocket(threading.Thread):
                     recv_message = parse_data(self.buffer_utf8)
                     if recv_message == "quit":
                         print("Socket %s Logout!" % (self.index))
-                        nowTime = time.strftime('%H:%M:%S',time.localtime(time.time()))
-                        sendMessage("%s %s say: %s" % (nowTime, self.remote, self.name+" Logout"))
                         deleteconnection(str(self.index))
                         self.conn.close()
                         break
                     else:
-                        nowTime = time.strftime('%H:%M:%S',time.localtime(time.time()))
-                        sendMessage("%s %s say: %s" % (nowTime, self.remote, recv_message))
+                        ###################
+                        #parse the message and dispatch it to celery
+                        ###################
+                        sendMessage("get")
+                        print(recv_message)
+ 
                     g_code_length = 0
                     self.length_buffer = 0
-                    self.buffer_utf8 = b
-                    """"""""""""""""""""""""""""""""""""""""""""""""""""""'''
+                    self.buffer_utf8 = b""
+                '''
 
 class WebSocketServer(object):
     def __init__(self):

@@ -9,10 +9,6 @@ app = Celery('proj',
              backend='amqp://',
              include=['medicalServer.tasks'])
 
-app.conf.update(
-    result_expires=3600,
-)
-
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.autodiscover_tasks()
